@@ -88,12 +88,17 @@ module BreadcrumbsOnRails
         if element.path == nil
           content = compute_name(element)
         else
-          content = @context.link_to_unless_current(compute_name(element), compute_path(element), element.options)
+          content = @context.link_to_unless_current(compute_name(element), compute_path(element), element.options.merge(class: "breadcrumb-item"))
         end
         if @options[:tag]
-          @context.content_tag(@options[:tag], content)
+          @context.content_tag(@options[:tag], content, class: "breadcrumb-item")
         else
-          ERB::Util.h(content)
+          if element == @elements.last
+            @context.content_tag(:span, content, class: "breadcrumb-item active")            
+          else
+            ERB::Util.h(content)
+          end
+
         end
       end
 
