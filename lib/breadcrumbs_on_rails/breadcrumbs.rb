@@ -45,7 +45,7 @@ module BreadcrumbsOnRails
       protected
 
         def compute_name(element)
-          case name = element.name
+          str = case name = element.name
           when Symbol
             @context.send(name)
           when Proc
@@ -53,6 +53,9 @@ module BreadcrumbsOnRails
           else
             name.to_s
           end
+
+          @context.content_tag(:span, str, itemprop: "name")
+
         end
 
         def compute_path(element)
@@ -90,11 +93,12 @@ module BreadcrumbsOnRails
         else
           content = @context.link_to_unless_current(compute_name(element), compute_path(element), element.options.merge(class: "breadcrumb-item"))
         end
+
         if @options[:tag]
-          @context.content_tag(@options[:tag], content, class: "breadcrumb-item")
+          @context.content_tag(@options[:tag], content, class: "breadcrumb-item", itemprop: "itemListElement", itemscope: true, itemtype: "http://schema.org/ListItem")
         else
           if element == @elements.last
-            @context.content_tag(:span, content, class: "breadcrumb-item active")            
+            @context.content_tag(:span, content, class: "breadcrumb-item active", itemprop: "itemListElement", itemscope: true, itemtype: "http://schema.org/ListItem")
           else
             ERB::Util.h(content)
           end
