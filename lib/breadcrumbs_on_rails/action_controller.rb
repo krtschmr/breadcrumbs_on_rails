@@ -24,11 +24,28 @@ module BreadcrumbsOnRails
     protected
 
     def add_breadcrumb(name, path = nil, options = {})
+      name = i18n_breadcrumb_name(name) unless name.is_a?(String)
       self.breadcrumbs << Breadcrumbs::Element.new(name, path, options)
     end
 
+
     def breadcrumbs
       @breadcrumbs ||= []
+    end
+
+    private
+
+    def i18n_breadcrumb_name(keys)
+      prefix = "breadcrumbs"
+
+      lookup = ([prefix] + [keys]).flatten.join(".")
+      # try lookup in the breadcrumbs space, otherwise keys
+      if I18n.exists?( lookup )
+        I18n.t( lookup )
+      else
+        I18n.t( lookup ) # call, so we get a I18n.missing_translation created.
+        I18n.t( [keys].flatten.join(".") )
+      end
     end
 
     module Utils
@@ -60,11 +77,13 @@ module BreadcrumbsOnRails
         end
       end
 
+
     end
 
     module ClassMethods
 
       def add_breadcrumb(name, path = nil, filter_options = {})
+
         # This isn't really nice here
         if eval = Utils.convert_to_set_of_strings(filter_options.delete(:eval), %w(name path))
           name = Utils.instance_proc(name) if eval.include?("name")
