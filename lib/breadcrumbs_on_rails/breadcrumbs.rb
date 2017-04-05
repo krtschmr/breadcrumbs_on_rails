@@ -91,7 +91,12 @@ module BreadcrumbsOnRails
         if element.path == nil
           content = compute_name(element)
         else
-          content = @context.link_to_unless_current(compute_name(element), compute_path(element), element.options.merge(class: "breadcrumb-item"))
+          # only the last one won't get an active link if it's current
+          if @elements.last == element
+            content = @context.link_to_unless_current(compute_name(element), compute_path(element), element.options.merge(class: "breadcrumb-item"))
+          else
+            content = @context.link_to(compute_name(element), compute_path(element), element.options.merge(class: "breadcrumb-item"))
+          end
         end
 
         if @options[:tag]
